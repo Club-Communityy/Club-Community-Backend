@@ -32,13 +32,34 @@ public class MemberController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<MemberDto> getCurrentUser() {
+    public ResponseEntity<?> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof UserDetails)) {
+
+        if (authentication == null) {
+            System.out.println("Authentication is null");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        if (!authentication.isAuthenticated()) {
+            System.out.println("Authentication is not authenticated");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (!(authentication.getPrincipal() instanceof UserDetails)) {
+            System.out.println("Principal is not an instance of UserDetails");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        MemberDto memberDto = memberService.getMemberDetailsByUsername(userDetails.getUsername());
+        System.out.println("Authenticated username: " + userDetails.getUsername());
+
+        Object memberDto;
+        if (userDetails.getUsername().contains("@")) {
+            memberDto = memberService.getKakaoMemberDetailsByUsername(userDetails.getUsername());
+        } else {
+            memberDto = memberService.getMemberDetailsByUsername(userDetails.getUsername());
+        }
+
         return ResponseEntity.ok(memberDto);
     }
 

@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MemberRegistrationDto {
+public class MemberRegistrationKakaoDto {
     @NotBlank(message = "사용자 이름을 입력해주세요.")
     @Size(min = 2, max = 5, message = "사용자 이름은 2자 이상, 5자 이하여야 합니다.")
     private String username;
@@ -31,21 +31,10 @@ public class MemberRegistrationDto {
     @NotBlank(message = "학번을 입력해주세요.")
     @Size(min = 6, max = 15, message = "학번은 6자 이상, 15자 이하여야 합니다.")
     private String studentId;
-    @NotBlank(message = "아이디를 입력해주세요.")
-    @Size(min = 6, max = 15, message = "사용자 아이디는 6자 이상, 15자 이하여야 합니다.")
-    private String loginId;
-
-    @NotBlank(message = "비밀번호를 입력해주세요.")
-    @Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다.")
-    private String password;
 
     @NotBlank(message = "전화번호를 입력해주세요.")
     @Size(min = 8, max = 15, message = "전화번호는 10자리 이상이어야 합니다.")
     private String phoneNumber;
-
-    @NotBlank(message = "이메일을 입력해주세요.")
-    @Email(message = "이메일 형식이 맞지 않습니다.")
-    private String email;
 
     @NotNull(message = "사용자 유형을 선택해주세요.")
     private Member.UserType userType;

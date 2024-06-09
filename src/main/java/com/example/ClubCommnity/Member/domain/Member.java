@@ -28,23 +28,23 @@ public class Member {
     @Column(nullable = false)
     private Gender gender;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String department;
 
     @Column(nullable = false, unique = true)
     private String studentId;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true, unique = true)
     private String loginId;
+
+    @Column(name = "password_hash", nullable = true)
+    private String passwordHash;
 
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
     @Column(nullable = false)
     private String email;
-
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type", nullable = false)

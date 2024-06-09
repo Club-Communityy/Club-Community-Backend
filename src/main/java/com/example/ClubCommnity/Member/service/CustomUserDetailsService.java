@@ -19,12 +19,21 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Member member = memberRepository.findByLoginId(username)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자 이름을 가진 사용자를 찾을 수 없습니다: " + username));
+        Member member;
+        if (username.contains("@")) {
+            member = memberRepository.findByEmail(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("해당 이메일을 가진 사용자를 찾을 수 없습니다: " + username));
+        } else {
+            member = memberRepository.findByLoginId(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("해당 로그인 ID를 가진 사용자를 찾을 수 없습니다: " + username));
+        }
+
+        String loginId = member.getLoginId() != null ? member.getLoginId() : "";
+        String passwordHash = member.getPasswordHash() != null ? member.getPasswordHash() : "";
 
         return User
                 .withUsername(username)
-                .password(member.getPasswordHash())
+                .password(passwordHash)
                 .authorities(member.getUserType().name())
                 .accountExpired(false)
                 .accountLocked(false)
@@ -32,4 +41,5 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .disabled(false)
                 .build();
     }
+
 }

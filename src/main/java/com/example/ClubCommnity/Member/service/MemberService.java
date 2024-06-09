@@ -4,10 +4,14 @@ import com.example.ClubCommnity.Member.dto.*;
 import com.example.ClubCommnity.Member.repository.MemberRepository;
 import com.example.ClubCommnity.Member.util.JwtTokenProvider;
 import com.example.ClubCommnity.exception.*;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,11 +34,31 @@ public class MemberService {
         return new TokenDto(token);
     }
 
+    public TokenDto registerKakaoMember(MemberRegistrationKakaoDto registrationDto, String email) { //회원가입 시 DB저장 후 토큰 반환
+        validateKakaoRegistration(registrationDto, email);
+        Member member = buildKakaoMember(registrationDto, email);
+        memberRepository.save(member);
+        String token = jwtTokenProvider.createToken(member.getEmail(), member.getUserType());
+        return new TokenDto(token);
+    }
+
     private void validateRegistration(MemberRegistrationDto dto) { //회원가입 정보 검증
         memberRepository.findByLoginId(dto.getLoginId()).ifPresent(m -> {
             throw new DuplicateLoginIdException("이미 등록된 ID 입니다.");
         });
         memberRepository.findByEmail(dto.getEmail()).ifPresent(m -> {
+            throw new DuplicateEmailException("이미 등록된 이메일입니다.");
+        });
+        memberRepository.findByStudentId(dto.getStudentId()).ifPresent(m -> {
+            throw new DuplicateNicknameException("이미 등록된 학번입니다.");
+        });
+        memberRepository.findByPhoneNumber(dto.getPhoneNumber()).ifPresent(m -> {
+            throw new DuplicateNicknameException("이미 등록된 전화번호 입니다.");
+        });
+    }
+
+    private void validateKakaoRegistration(MemberRegistrationKakaoDto dto, String email) { //회원가입 정보 검증
+        memberRepository.findByEmail(email).ifPresent(m -> {
             throw new DuplicateEmailException("이미 등록된 이메일입니다.");
         });
         memberRepository.findByStudentId(dto.getStudentId()).ifPresent(m -> {
@@ -60,12 +84,32 @@ public class MemberService {
                 .build();
     }
 
+    private Member buildKakaoMember(MemberRegistrationKakaoDto dto, String email) { //dto로 Member 엔티티 생성
+        return Member.builder()
+                .username(dto.getUsername())
+                .birth(dto.getBirth())
+                .gender(dto.getGender())
+                .department(dto.getDepartment())
+                .studentId(dto.getStudentId())
+                .phoneNumber(dto.getPhoneNumber())
+                .email(email)
+                .userType(dto.getUserType())
+                .build();
+    }
+
 
     public TokenDto loginMember(MemberLoginDto loginDto) { //로그인 시 아이디 비밀번호 검증 후 토큰 반환
         Member member = memberRepository.findByLoginId(loginDto.getLoginId())
                 .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));//아이디가 존재하지 않을때
         validatePassword(loginDto.getPassword(), member.getPasswordHash()); //비밀번호 검증
         String token = jwtTokenProvider.createToken(member.getLoginId(), member.getUserType());
+        return new TokenDto(token);
+    }
+
+    public TokenDto KakaologinMember(String email) { //로그인 시 이메일 검증 후 토큰 반환
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));//이메일이 존재하지 않을 때
+        String token = jwtTokenProvider.createToken(email, member.getUserType());
         return new TokenDto(token);
     }
 
@@ -79,12 +123,17 @@ public class MemberService {
         return jwtTokenProvider.createToken(member.getLoginId(), member.getUserType());
     }
 
+    public MemberKakaoDto getKakaoMemberDetailsByUsername(String username) {
+        return memberRepository.findByEmail(username)
+                .map(this::convertToMemberKakaoDto)
+                .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));
+
+    }
     public MemberDto getMemberDetailsByUsername(String username) {
         return memberRepository.findByLoginId(username)
                 .map(this::convertToMemberDto)
                 .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));
     }
-
     public MemberDto updateMemberDetails(Long id, MemberUpdateDto updateDto, String username) {
         Member existingMember = memberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID의 회원을 찾을 수 없습니다: " + id));
@@ -126,6 +175,19 @@ public class MemberService {
                 member.getUserType()
         );
     }
+    private MemberKakaoDto convertToMemberKakaoDto(Member member) {
+        return new MemberKakaoDto(
+                member.getId(),
+                member.getUsername(),
+                member.getBirth(),
+                member.getGender(),
+                member.getDepartment(),
+                member.getStudentId(),
+                member.getPhoneNumber(),
+                member.getEmail(),
+                member.getUserType()
+        );
+    }
 
     public boolean checkIfUserIsAdmin(String token) {
         Member.UserType userType = jwtTokenProvider.getUserTypeFromToken(token);
@@ -158,5 +220,6 @@ public class MemberService {
         member.setPasswordHash(passwordEncoder.encode(newPassword));
         memberRepository.save(member);
     }
+
 
 }

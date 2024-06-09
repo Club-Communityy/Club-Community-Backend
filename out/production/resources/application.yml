@@ -41,3 +41,7 @@ app:
 iamport:
   api-key: "7655673661637031"
   api-secret: "9e0qf4EneZXs0MIX7LQbJvytgSoC445Lzcpylz8yRsjziNZZmYFk8reUL4H3bZdHgha7o71ndecmO5Vt"
+
+kakao:
+  client_id: 30ade00e0da2a659ae78956bda373c62
+  redirect_uri: http://localhost:8080/api/auth/kakao-code

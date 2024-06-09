@@ -35,7 +35,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authz -> authz
-                    .requestMatchers("/api/auth/register", "/api/auth/login", "/api/**", "/ws/**")
+                    .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/kakao-login", "/api/auth/kakao-register", "/api/**", "/ws/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.PUT, "/menus/**").permitAll()
                     .anyRequest().authenticated())

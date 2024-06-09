@@ -20,7 +20,12 @@ public class UserPrincipal implements UserDetails {
     // 생성자 추가
     public UserPrincipal(Member member) {
         this.id = member.getId();
-        this.username = member.getLoginId();
+        // login_id가 null이면 email을, 그렇지 않으면 login_id를 username으로 사용
+        if (member.getLoginId() == null) {
+            this.username = member.getEmail();
+        } else {
+            this.username = member.getLoginId();
+        }
         this.password = member.getPasswordHash();
         this.userType = member.getUserType();
     }
@@ -30,8 +35,10 @@ public class UserPrincipal implements UserDetails {
         // UserType에 따라 다른 권한 부여
         if (userType == Member.UserType.ADMIN) {
             return Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        } else {
+        } else if (userType == Member.UserType.USER) {
             return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+        } else {
+            return Collections.singleton(new SimpleGrantedAuthority("ROLE_CLUBMANAGER"));
         }
     }
 
