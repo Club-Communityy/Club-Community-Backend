@@ -2,6 +2,7 @@ package com.example.ClubCommunity.Club.controller;
 
 import com.example.ClubCommunity.Club.dto.ClubMemberDto;
 import com.example.ClubCommunity.Club.service.ClubMemberService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,16 +52,16 @@ public class ClubMemberController {
     }
 
     @PutMapping("/approve")
-    public ResponseEntity<List<ClubMemberDto>> approveMembershipApplications(@RequestBody List<Long> ids) {
+    public ResponseEntity<List<ClubMemberDto>> approveMembershipApplications(@RequestBody IdsRequest idsRequest) {
         // 다건 동아리 가입 신청 승인 처리
-        List<ClubMemberDto> approvedApplications = clubMemberService.approveMembershipApplications(ids);
+        List<ClubMemberDto> approvedApplications = clubMemberService.approveMembershipApplications(idsRequest.getIds());
         return ResponseEntity.ok(approvedApplications);
     }
 
     @PutMapping("/reject")
-    public ResponseEntity<List<ClubMemberDto>> rejectMembershipApplications(@RequestBody List<Long> ids) {
+    public ResponseEntity<List<ClubMemberDto>> rejectMembershipApplications(@RequestBody IdsRequest idsRequest) {
         // 다건 동아리 가입 신청 거절 처리
-        List<ClubMemberDto> rejectedApplications = clubMemberService.rejectMembershipApplications(ids);
+        List<ClubMemberDto> rejectedApplications = clubMemberService.rejectMembershipApplications(idsRequest.getIds());
         return ResponseEntity.ok(rejectedApplications);
     }
 
@@ -69,5 +70,10 @@ public class ClubMemberController {
         // 동아리 탈퇴 처리
         ClubMemberDto withdrawnApplication = clubMemberService.withdrawMembership(id);
         return ResponseEntity.ok(withdrawnApplication);
+    }
+
+    @Data
+    public static class IdsRequest {
+        private List<Long> ids;
     }
 }
