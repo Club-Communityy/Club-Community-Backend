@@ -2,6 +2,8 @@ package com.example.ClubCommunity.Club.controller;
 
 import com.example.ClubCommunity.Club.dto.ClubDto;
 import com.example.ClubCommunity.Club.service.ClubService;
+import com.example.ClubCommunity.Member.domain.Member;
+import com.example.ClubCommunity.Member.service.MemberService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import java.util.List;
 public class ClubController {
 
     private final ClubService clubService;
+    private final MemberService memberService;
 
     @PostMapping("/apply")
     public ResponseEntity<ClubDto> applyForClub(@RequestBody ClubDto clubDto, Authentication authentication) {
@@ -70,6 +73,13 @@ public class ClubController {
         // 다건 동아리 신청 거절 처리
         List<ClubDto> rejectedClubs = clubService.rejectClubApplications(rejections);
         return ResponseEntity.ok(rejectedClubs);
+    }
+
+    @PutMapping("/grant-clubmanager/{memberId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLUBMANAGER')")
+    public ResponseEntity<Void> grantClubManagerRole(@PathVariable("memberId") Long memberId) {
+        memberService.changeUserRole(memberId, Member.UserType.ROLE_CLUBMANAGER);
+        return ResponseEntity.ok().build();
     }
 
     @Data
