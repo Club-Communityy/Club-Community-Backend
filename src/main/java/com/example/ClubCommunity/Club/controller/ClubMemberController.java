@@ -5,6 +5,7 @@ import com.example.ClubCommunity.Club.service.ClubMemberService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class ClubMemberController {
     }
 
     @GetMapping("/applications/{clubId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLUBMANAGER')")
     public ResponseEntity<List<ClubMemberDto>> getClubMembershipApplications(@PathVariable("clubId") Long clubId) {
         // 동아리 가입 신청 목록 조회 (신청 대기 상태)
         List<ClubMemberDto> applications = clubMemberService.getClubMembershipApplications(clubId);
@@ -38,6 +40,7 @@ public class ClubMemberController {
     }
 
     @PutMapping("/approve/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLUBMANAGER')")
     public ResponseEntity<ClubMemberDto> approveMembershipApplication(@PathVariable("id") Long id) {
         // 동아리 가입 신청 승인 처리
         ClubMemberDto approvedApplication = clubMemberService.approveMembershipApplication(id);
@@ -45,6 +48,7 @@ public class ClubMemberController {
     }
 
     @PutMapping("/reject/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLUBMANAGER')")
     public ResponseEntity<ClubMemberDto> rejectMembershipApplication(@PathVariable("id") Long id) {
         // 동아리 가입 신청 거절 처리
         ClubMemberDto rejectedApplication = clubMemberService.rejectMembershipApplication(id);
@@ -52,6 +56,7 @@ public class ClubMemberController {
     }
 
     @PutMapping("/approve")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLUBMANAGER')")
     public ResponseEntity<List<ClubMemberDto>> approveMembershipApplications(@RequestBody IdsRequest idsRequest) {
         // 다건 동아리 가입 신청 승인 처리
         List<ClubMemberDto> approvedApplications = clubMemberService.approveMembershipApplications(idsRequest.getIds());
@@ -59,6 +64,7 @@ public class ClubMemberController {
     }
 
     @PutMapping("/reject")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLUBMANAGER')")
     public ResponseEntity<List<ClubMemberDto>> rejectMembershipApplications(@RequestBody IdsRequest idsRequest) {
         // 다건 동아리 가입 신청 거절 처리
         List<ClubMemberDto> rejectedApplications = clubMemberService.rejectMembershipApplications(idsRequest.getIds());
@@ -67,8 +73,16 @@ public class ClubMemberController {
 
     @PutMapping("/withdraw/{id}")
     public ResponseEntity<ClubMemberDto> withdrawMembership(@PathVariable("id") Long id) {
-        // 동아리 탈퇴 처리
+        // 동아리 탈퇴 처리 (자신의 탈퇴)
         ClubMemberDto withdrawnApplication = clubMemberService.withdrawMembership(id);
+        return ResponseEntity.ok(withdrawnApplication);
+    }
+
+    @PutMapping("/withdraw")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLUBMANAGER')")
+    public ResponseEntity<ClubMemberDto> withdrawMembershipByAdmin(@RequestParam("memberId") Long memberId) {
+        // 동아리 탈퇴 처리 (관리자에 의해)
+        ClubMemberDto withdrawnApplication = clubMemberService.withdrawMembership(memberId);
         return ResponseEntity.ok(withdrawnApplication);
     }
 

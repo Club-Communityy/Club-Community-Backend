@@ -5,6 +5,7 @@ import com.example.ClubCommunity.Club.service.ClubService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,12 +27,13 @@ public class ClubController {
 
     @GetMapping("/applications")
     public ResponseEntity<List<ClubDto>> getAllClubApplications() {
-        // 모든 동아리 신청 목록 조회
-        List<ClubDto> clubApplications = clubService.getAllClubApplications();
+        // 승인된 동아리 신청 목록 조회
+        List<ClubDto> clubApplications = clubService.getApprovedClubApplications();
         return ResponseEntity.ok(clubApplications);
     }
 
     @GetMapping("/applications/pending")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ClubDto>> getPendingClubApplications() {
         // PENDING 상태의 동아리 신청 목록 조회
         List<ClubDto> pendingClubApplications = clubService.getPendingClubApplications();
@@ -39,6 +41,7 @@ public class ClubController {
     }
 
     @PutMapping("/approve/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ClubDto> approveClubApplication(@PathVariable("id") Long id) {
         // 동아리 신청 승인 처리
         ClubDto approvedClub = clubService.approveClubApplication(id);
@@ -46,6 +49,7 @@ public class ClubController {
     }
 
     @PutMapping("/reject/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ClubDto> rejectClubApplication(@PathVariable("id") Long id, @RequestParam("reason") String reason) {
         // 동아리 신청 거절 처리
         ClubDto rejectedClub = clubService.rejectClubApplication(id, reason);
@@ -53,6 +57,7 @@ public class ClubController {
     }
 
     @PutMapping("/approve")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ClubDto>> approveClubApplications(@RequestBody IdsRequest idsRequest) {
         // 다건 동아리 신청 승인 처리
         List<ClubDto> approvedClubs = clubService.approveClubApplications(idsRequest.getIds());
@@ -60,6 +65,7 @@ public class ClubController {
     }
 
     @PutMapping("/reject")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ClubDto>> rejectClubApplications(@RequestBody List<RejectionRequest> rejections) {
         // 다건 동아리 신청 거절 처리
         List<ClubDto> rejectedClubs = clubService.rejectClubApplications(rejections);
