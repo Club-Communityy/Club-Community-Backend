@@ -42,10 +42,19 @@ public class ClubMemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<ClubMemberDto> getClubMembershipApplications(Long clubId) {
-        // 동아리 가입 신청 목록 조회
+    public List<ClubMemberDto> getAllClubMembers(Long clubId) {
+        // 동아리의 모든 회원 조회
         return clubMemberRepository.findAll().stream()
                 .filter(cm -> cm.getClub().getId().equals(clubId))
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClubMemberDto> getClubMembershipApplications(Long clubId) {
+        // 동아리 가입 신청 목록 조회 (신청 대기 상태)
+        return clubMemberRepository.findAll().stream()
+                .filter(cm -> cm.getClub().getId().equals(clubId) && cm.getStatus() == ClubMember.MembershipStatus.APPLIED)
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }

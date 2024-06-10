@@ -33,6 +33,6 @@ public class ClubApplicationForm {
     private String fileType; // 파일 타입
 
     @Lob
-    @Column(nullable = false)
+    @Column(name = "data", columnDefinition="LONGBLOB")
     private byte[] data; // 파일 데이터
 }

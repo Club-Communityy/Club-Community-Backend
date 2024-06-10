@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/api/club-application-forms")
@@ -19,8 +22,8 @@ public class ClubApplicationFormController {
     private final ClubApplicationFormService clubApplicationFormService;
 
     @PostMapping("/upload")
-    public ResponseEntity<ClubApplicationFormDto> uploadApplicationForm(@RequestParam Long clubId,
-                                                                        @RequestParam Long memberId,
+    public ResponseEntity<ClubApplicationFormDto> uploadApplicationForm(@RequestParam("clubId") Long clubId,
+                                                                        @RequestParam("memberId") Long memberId,
                                                                         @RequestParam("file") MultipartFile file) throws IOException {
         // 신청서 파일 업로드 처리
         ClubApplicationFormDto formDto = clubApplicationFormService.uploadApplicationForm(clubId, memberId, file);
@@ -28,13 +31,18 @@ public class ClubApplicationFormController {
     }
 
     @GetMapping("/download/{formId}")
-    public ResponseEntity<byte[]> downloadApplicationForm(@PathVariable("formId") Long formId) {
+    public ResponseEntity<byte[]> downloadApplicationForm(@PathVariable("formId") Long formId) throws UnsupportedEncodingException {
         // 신청서 파일 다운로드 처리
         ClubApplicationFormDto formDto = clubApplicationFormService.downloadApplicationForm(formId);
 
+        String encodedFileName = URLEncoder.encode(formDto.getFileName(), StandardCharsets.UTF_8.toString()).replaceAll("\\+", "%20");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", encodedFileName);
+
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(formDto.getFileType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + formDto.getFileName() + "\"")
+                .headers(headers)
                 .body(formDto.getData());
     }
 }

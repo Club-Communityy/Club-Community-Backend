@@ -16,15 +16,22 @@ public class ClubMemberController {
     private final ClubMemberService clubMemberService;
 
     @PostMapping("/apply")
-    public ResponseEntity<ClubMemberDto> applyForMembership(@RequestParam Long clubId, @RequestParam Long memberId) {
+    public ResponseEntity<ClubMemberDto> applyForMembership(@RequestParam("clubId") Long clubId, @RequestParam("memberId") Long memberId) {
         // 동아리 가입 신청 처리
         ClubMemberDto createdApplication = clubMemberService.applyForMembership(clubId, memberId);
         return ResponseEntity.ok(createdApplication);
     }
 
+    @GetMapping("/members/{clubId}")
+    public ResponseEntity<List<ClubMemberDto>> getAllClubMembers(@PathVariable("clubId") Long clubId) {
+        // 동아리의 모든 회원 조회
+        List<ClubMemberDto> members = clubMemberService.getAllClubMembers(clubId);
+        return ResponseEntity.ok(members);
+    }
+
     @GetMapping("/applications/{clubId}")
     public ResponseEntity<List<ClubMemberDto>> getClubMembershipApplications(@PathVariable("clubId") Long clubId) {
-        // 동아리 가입 신청 목록 조회
+        // 동아리 가입 신청 목록 조회 (신청 대기 상태)
         List<ClubMemberDto> applications = clubMemberService.getClubMembershipApplications(clubId);
         return ResponseEntity.ok(applications);
     }
