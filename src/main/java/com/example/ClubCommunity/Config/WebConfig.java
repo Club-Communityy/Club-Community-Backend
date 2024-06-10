@@ -1,4 +1,4 @@
-package com.example.ClubCommunity.Club.Config;
+package com.example.ClubCommunity.Config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
