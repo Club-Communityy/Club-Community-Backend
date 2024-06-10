@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +14,9 @@ public class ClubDetailsDto {
     private Long clubId; // 동아리 ID
     private String introduction; // 동아리 소개
     private String history; // 동아리 역사
-    private String mainImage; // 대표 사진 URL
+    private byte[] mainImage; // 대표 사진 데이터
     private String regularMeetingTime; // 정기 모임 시간
-    private List<String> officers; // 임원 명단 (대표, 부대표, 총무 등)
+    private String presidentName; // 회장 이름
+    private String vicePresidentName; // 부회장 이름
+    private String treasurerName; // 총무 이름
 }

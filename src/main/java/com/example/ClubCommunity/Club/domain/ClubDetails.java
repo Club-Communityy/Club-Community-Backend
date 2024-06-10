@@ -1,12 +1,11 @@
 package com.example.ClubCommunity.Club.domain;
 
+import com.example.ClubCommunity.Member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,11 +24,22 @@ public class ClubDetails {
 
     private String introduction; // 동아리 소개
     private String history; // 동아리 역사
-    private String mainImage; // 대표 사진 URL
+
+    @Lob
+    @Column(name = "image", columnDefinition="LONGBLOB")
+    private byte[] mainImage; // 대표 사진 데이터
+
     private String regularMeetingTime; // 정기 모임 시간
 
-    @ElementCollection
-    @CollectionTable(name = "club_officers", joinColumns = @JoinColumn(name = "club_id"))
-    @Column(name = "officer")
-    private List<String> officers; // 임원 명단 (대표, 부대표, 총무 등)
+    @ManyToOne
+    @JoinColumn(name = "president_id")
+    private Member president; // 회장
+
+    @ManyToOne
+    @JoinColumn(name = "vice_president_id")
+    private Member vicePresident; // 부회장
+
+    @ManyToOne
+    @JoinColumn(name = "treasurer_id")
+    private Member treasurer; // 총무
 }

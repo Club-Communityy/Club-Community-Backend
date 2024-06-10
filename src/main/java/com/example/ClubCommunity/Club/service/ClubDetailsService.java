@@ -5,7 +5,9 @@ import com.example.ClubCommunity.Club.domain.ClubDetails;
 import com.example.ClubCommunity.Club.dto.ClubDetailsDto;
 import com.example.ClubCommunity.Club.repository.ClubDetailsRepository;
 import com.example.ClubCommunity.Club.repository.ClubRepository;
+import com.example.ClubCommunity.Member.domain.Member;
 import com.example.ClubCommunity.exception.ResourceNotFoundException;
+import com.example.ClubCommunity.Member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,39 +18,52 @@ public class ClubDetailsService {
 
     private final ClubDetailsRepository clubDetailsRepository;
     private final ClubRepository clubRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public ClubDetailsDto createOrUpdateClubDetails(ClubDetailsDto detailsDto) {
-        // 동아리 기본 정보 입력/수정 처리
         Club club = clubRepository.findById(detailsDto.getClubId())
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID로 동아리를 찾을 수 없습니다: " + detailsDto.getClubId()));
-        ClubDetails details = toEntity(detailsDto, club);
+
+        ClubDetails details = clubDetailsRepository.findByClub(club)
+                .orElse(new ClubDetails());
+
+        details.setClub(club);
+        details.setIntroduction(detailsDto.getIntroduction());
+        details.setHistory(detailsDto.getHistory());
+        details.setMainImage(detailsDto.getMainImage());
+        details.setRegularMeetingTime(detailsDto.getRegularMeetingTime());
+
+        if (detailsDto.getPresidentName() != null) {
+            Member president = memberRepository.findByUsername(detailsDto.getPresidentName())
+                    .orElseThrow(() -> new ResourceNotFoundException("해당 이름으로 회원을 찾을 수 없습니다: " + detailsDto.getPresidentName()));
+            details.setPresident(president);
+        }
+
+        if (detailsDto.getVicePresidentName() != null) {
+            Member vicePresident = memberRepository.findByUsername(detailsDto.getVicePresidentName())
+                    .orElseThrow(() -> new ResourceNotFoundException("해당 이름으로 회원을 찾을 수 없습니다: " + detailsDto.getVicePresidentName()));
+            details.setVicePresident(vicePresident);
+        }
+
+        if (detailsDto.getTreasurerName() != null) {
+            Member treasurer = memberRepository.findByUsername(detailsDto.getTreasurerName())
+                    .orElseThrow(() -> new ResourceNotFoundException("해당 이름으로 회원을 찾을 수 없습니다: " + detailsDto.getTreasurerName()));
+            details.setTreasurer(treasurer);
+        }
+
         clubDetailsRepository.save(details);
         return toDto(details);
     }
 
     @Transactional(readOnly = true)
     public ClubDetailsDto getClubDetails(Long clubId) {
-        // 동아리 기본 정보 조회
-        ClubDetails details = clubDetailsRepository.findById(clubId)
+        ClubDetails details = clubDetailsRepository.findByClubId(clubId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID로 동아리 정보를 찾을 수 없습니다: " + clubId));
         return toDto(details);
     }
 
-    private ClubDetails toEntity(ClubDetailsDto dto, Club club) {
-        // DTO를 엔티티로 변환
-        return ClubDetails.builder()
-                .club(club)
-                .introduction(dto.getIntroduction())
-                .history(dto.getHistory())
-                .mainImage(dto.getMainImage())
-                .regularMeetingTime(dto.getRegularMeetingTime())
-                .officers(dto.getOfficers())
-                .build();
-    }
-
     private ClubDetailsDto toDto(ClubDetails entity) {
-        // 엔티티를 DTO로 변환
         return ClubDetailsDto.builder()
                 .id(entity.getId())
                 .clubId(entity.getClub().getId())
@@ -56,7 +71,9 @@ public class ClubDetailsService {
                 .history(entity.getHistory())
                 .mainImage(entity.getMainImage())
                 .regularMeetingTime(entity.getRegularMeetingTime())
-                .officers(entity.getOfficers())
+                .presidentName(entity.getPresident() != null ? entity.getPresident().getUsername() : null)
+                .vicePresidentName(entity.getVicePresident() != null ? entity.getVicePresident().getUsername() : null)
+                .treasurerName(entity.getTreasurer() != null ? entity.getTreasurer().getUsername() : null)
                 .build();
     }
 }
