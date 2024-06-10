@@ -64,8 +64,12 @@ public class ClubMemberService {
         // 동아리 가입 신청 승인 처리
         ClubMember clubMember = clubMemberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID로 동아리 회원을 찾을 수 없습니다: " + id));
-        clubMember.setStatus(ClubMember.MembershipStatus.APPROVED);
-        clubMemberRepository.save(clubMember);
+        if (clubMember.getStatus() == ClubMember.MembershipStatus.APPLIED) {
+            clubMember.setStatus(ClubMember.MembershipStatus.APPROVED);
+            clubMemberRepository.save(clubMember);
+        } else {
+            throw new IllegalStateException("승인할 수 없는 상태입니다.");
+        }
         return toDto(clubMember);
     }
 
@@ -74,8 +78,12 @@ public class ClubMemberService {
         // 동아리 가입 신청 거절 처리
         ClubMember clubMember = clubMemberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID로 동아리 회원을 찾을 수 없습니다: " + id));
-        clubMember.setStatus(ClubMember.MembershipStatus.REJECTED);
-        clubMemberRepository.save(clubMember);
+        if (clubMember.getStatus() == ClubMember.MembershipStatus.APPLIED) {
+            clubMember.setStatus(ClubMember.MembershipStatus.REJECTED);
+            clubMemberRepository.save(clubMember);
+        } else {
+            throw new IllegalStateException("거절할 수 없는 상태입니다.");
+        }
         return toDto(clubMember);
     }
 
@@ -83,7 +91,13 @@ public class ClubMemberService {
     public List<ClubMemberDto> approveMembershipApplications(List<Long> ids) {
         // 다건 동아리 가입 신청 승인 처리
         List<ClubMember> clubMembers = clubMemberRepository.findAllById(ids).stream()
-                .peek(clubMember -> clubMember.setStatus(ClubMember.MembershipStatus.APPROVED))
+                .peek(clubMember -> {
+                    if (clubMember.getStatus() == ClubMember.MembershipStatus.APPLIED) {
+                        clubMember.setStatus(ClubMember.MembershipStatus.APPROVED);
+                    } else {
+                        throw new IllegalStateException("승인할 수 없는 상태입니다.");
+                    }
+                })
                 .collect(Collectors.toList());
         clubMemberRepository.saveAll(clubMembers);
         return clubMembers.stream().map(this::toDto).collect(Collectors.toList());
@@ -93,7 +107,13 @@ public class ClubMemberService {
     public List<ClubMemberDto> rejectMembershipApplications(List<Long> ids) {
         // 다건 동아리 가입 신청 거절 처리
         List<ClubMember> clubMembers = clubMemberRepository.findAllById(ids).stream()
-                .peek(clubMember -> clubMember.setStatus(ClubMember.MembershipStatus.REJECTED))
+                .peek(clubMember -> {
+                    if (clubMember.getStatus() == ClubMember.MembershipStatus.APPLIED) {
+                        clubMember.setStatus(ClubMember.MembershipStatus.REJECTED);
+                    } else {
+                        throw new IllegalStateException("거절할 수 없는 상태입니다.");
+                    }
+                })
                 .collect(Collectors.toList());
         clubMemberRepository.saveAll(clubMembers);
         return clubMembers.stream().map(this::toDto).collect(Collectors.toList());
