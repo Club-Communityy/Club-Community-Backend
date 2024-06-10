@@ -52,6 +52,9 @@ public class ClubService {
         // 동아리 신청 승인 처리
         Club club = clubRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID로 동아리를 찾을 수 없습니다: " + id));
+        if (club.getStatus() != Club.ClubStatus.PENDING) {
+            throw new IllegalStateException("동아리 신청이 PENDING 상태가 아닙니다.");
+        }
         club.setStatus(Club.ClubStatus.APPROVED);
         memberService.changeUserRole(club.getApplicant().getId(), Member.UserType.ROLE_CLUBMANAGER);
         clubRepository.save(club);
@@ -63,6 +66,9 @@ public class ClubService {
         // 동아리 신청 거절 처리
         Club club = clubRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID로 동아리를 찾을 수 없습니다: " + id));
+        if (club.getStatus() != Club.ClubStatus.PENDING) {
+            throw new IllegalStateException("동아리 신청이 PENDING 상태가 아닙니다.");
+        }
         club.setStatus(Club.ClubStatus.REJECTED);
         club.setRejectionReason(reason);
         clubRepository.save(club);
@@ -74,8 +80,12 @@ public class ClubService {
         // 다건 동아리 신청 승인 처리
         List<Club> clubs = clubRepository.findAllById(ids).stream()
                 .peek(club -> {
-                    club.setStatus(Club.ClubStatus.APPROVED);
-                    memberService.changeUserRole(club.getApplicant().getId(), Member.UserType.ROLE_CLUBMANAGER);
+                    if (club.getStatus() == Club.ClubStatus.PENDING) {
+                        club.setStatus(Club.ClubStatus.APPROVED);
+                        memberService.changeUserRole(club.getApplicant().getId(), Member.UserType.ROLE_CLUBMANAGER);
+                    } else {
+                        throw new IllegalStateException("동아리 신청이 PENDING 상태가 아닙니다: " + club.getId());
+                    }
                 }).collect(Collectors.toList());
         clubRepository.saveAll(clubs);
         return clubs.stream().map(this::toDto).collect(Collectors.toList());
@@ -89,8 +99,12 @@ public class ClubService {
 
         List<Club> clubs = clubRepository.findAllById(rejectionMap.keySet()).stream()
                 .peek(club -> {
-                    club.setStatus(Club.ClubStatus.REJECTED);
-                    club.setRejectionReason(rejectionMap.get(club.getId()));
+                    if (club.getStatus() == Club.ClubStatus.PENDING) {
+                        club.setStatus(Club.ClubStatus.REJECTED);
+                        club.setRejectionReason(rejectionMap.get(club.getId()));
+                    } else {
+                        throw new IllegalStateException("동아리 신청이 PENDING 상태가 아닙니다: " + club.getId());
+                    }
                 }).collect(Collectors.toList());
         clubRepository.saveAll(clubs);
         return clubs.stream().map(this::toDto).collect(Collectors.toList());
