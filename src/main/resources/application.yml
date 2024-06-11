@@ -16,7 +16,7 @@ spring:
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://svc.sel5.cloudtype.app:32319/cafe-flow
+    url: jdbc:mariadb://svc.sel5.cloudtype.app:30620/cafe-flow
     username: root
     password: 2527
 
