@@ -41,6 +41,17 @@ public class ClubMemberService {
         return toDto(clubMember);
     }
 
+    @Transactional
+    public void addClubMember(Club club, Member member) {
+        // 동아리 회원 추가
+        ClubMember clubMember = ClubMember.builder()
+                .club(club)
+                .member(member)
+                .status(ClubMember.MembershipStatus.APPROVED)
+                .build();
+        clubMemberRepository.save(clubMember);
+    }
+
     @Transactional(readOnly = true)
     public List<ClubMemberDto> getAllClubMembers(Long clubId) {
         // 동아리의 모든 회원 조회

@@ -1,6 +1,5 @@
 package com.example.ClubCommunity.Club.domain;
 
-import com.example.ClubCommunity.Member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,15 +30,7 @@ public class ClubDetails {
 
     private String regularMeetingTime; // 정기 모임 시간
 
-    @ManyToOne
-    @JoinColumn(name = "president_id")
-    private Member president; // 회장
-
-    @ManyToOne
-    @JoinColumn(name = "vice_president_id")
-    private Member vicePresident; // 부회장
-
-    @ManyToOne
-    @JoinColumn(name = "treasurer_id")
-    private Member treasurer; // 총무
+    private String presidentName; // 회장
+    private String vicePresidentName; // 부회장
+    private String treasurerName; // 총무
 }

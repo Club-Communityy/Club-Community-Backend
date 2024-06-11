@@ -24,6 +24,7 @@ public class ClubService {
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
     private final MemberService memberService;
+    private final ClubMemberService clubMemberService; // ClubMemberService 추가
 
     @Transactional
     public ClubDto applyForClub(ClubDto clubDto, Authentication authentication) {
@@ -63,7 +64,12 @@ public class ClubService {
             throw new IllegalStateException("동아리 신청이 PENDING 상태가 아닙니다.");
         }
         club.setStatus(Club.ClubStatus.APPROVED);
-        memberService.changeUserRole(club.getApplicant().getId(), Member.UserType.ROLE_CLUBMANAGER);
+        Member applicant = club.getApplicant();
+        memberService.changeUserRole(applicant.getId(), Member.UserType.ROLE_CLUBMANAGER);
+
+        // 동아리 회원 추가
+        clubMemberService.addClubMember(club, applicant);
+
         clubRepository.save(club);
         return toDto(club);
     }
@@ -89,7 +95,11 @@ public class ClubService {
                 .peek(club -> {
                     if (club.getStatus() == Club.ClubStatus.PENDING) {
                         club.setStatus(Club.ClubStatus.APPROVED);
-                        memberService.changeUserRole(club.getApplicant().getId(), Member.UserType.ROLE_CLUBMANAGER);
+                        Member applicant = club.getApplicant();
+                        memberService.changeUserRole(applicant.getId(), Member.UserType.ROLE_CLUBMANAGER);
+
+                        // 동아리 회원 추가
+                        clubMemberService.addClubMember(club, applicant);
                     } else {
                         throw new IllegalStateException("동아리 신청이 PENDING 상태가 아닙니다: " + club.getId());
                     }
