@@ -36,9 +36,16 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public List<ClubDto> getAllClubApplications() {
-        // 모든 동아리 신청 목록 조회
-        return clubRepository.findAll().stream().map(this::toDto).collect(Collectors.toList());
+    public List<ClubDto> getApprovedClubs() {
+        // 승인된 동아리 목록 조회
+        return clubRepository.findByStatus(Club.ClubStatus.APPROVED).stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClubDto> getMyApplications(Authentication authentication) {
+        // 자신이 신청한 동아리 목록 조회
+        Member member = getAuthenticatedMember(authentication);
+        return clubRepository.findByApplicant(member).stream().map(this::toDto).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

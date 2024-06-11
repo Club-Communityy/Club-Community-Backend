@@ -25,11 +25,18 @@ public class ClubController {
         return ResponseEntity.ok(createdClub);
     }
 
-    @GetMapping("/applications")
-    public ResponseEntity<List<ClubDto>> getAllClubApplications() {
-        // 모든 상태의 동아리 신청 목록 조회
-        List<ClubDto> clubApplications = clubService.getAllClubApplications();
-        return ResponseEntity.ok(clubApplications);
+    @GetMapping("/approved")
+    public ResponseEntity<List<ClubDto>> getApprovedClubs() {
+        // 승인된 동아리 목록 조회
+        List<ClubDto> approvedClubs = clubService.getApprovedClubs();
+        return ResponseEntity.ok(approvedClubs);
+    }
+
+    @GetMapping("/my-applications")
+    public ResponseEntity<List<ClubDto>> getMyApplications(Authentication authentication) {
+        // 자신이 신청한 동아리 목록 조회
+        List<ClubDto> myApplications = clubService.getMyApplications(authentication);
+        return ResponseEntity.ok(myApplications);
     }
 
     @GetMapping("/applications/pending")
