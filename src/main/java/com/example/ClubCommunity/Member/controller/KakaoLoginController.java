@@ -2,14 +2,13 @@ package com.example.ClubCommunity.Member.controller;
 
 
 
-import com.example.ClubCommunity.Member.dto.KakaoUserInfoResponseDto;
-import com.example.ClubCommunity.Member.dto.MemberRegistrationKakaoDto;
-import com.example.ClubCommunity.Member.dto.TokenDto;
+import com.example.ClubCommunity.Member.dto.*;
 import com.example.ClubCommunity.Member.service.KakaoMemberService;
 import com.example.ClubCommunity.Member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,22 +32,28 @@ public class KakaoLoginController {
     //코드 + 사용자가 입력한 정보를 이용해 회원가입
     @PostMapping("kakao-register")
     public ResponseEntity<TokenDto> kakaoRegister(@Valid @RequestBody MemberRegistrationKakaoDto registrationDto) throws IOException {
-        String accessToken = kakaoMemberService.getAccessTokenFromKakao(registrationDto.getCode());
-        KakaoUserInfoResponseDto userInfo = kakaoMemberService.getUserInfo(accessToken);
-
         //회원가입 로직
-        TokenDto tokenDto = memberService.registerKakaoMember(registrationDto, userInfo.getKakaoAccount().getEmail());
+        TokenDto tokenDto = memberService.registerKakaoMember(registrationDto);
         return ResponseEntity.ok(tokenDto);
     }
 
     @PostMapping("kakao-login")
-    public ResponseEntity<TokenDto> kakaoLogin(@RequestParam("code") String code) {
+    public ResponseEntity<TokenTypeDto> kakaoLogin(@RequestParam("code") String code) {
         String accessToken = kakaoMemberService.getAccessTokenFromKakao(code);
         KakaoUserInfoResponseDto userInfo = kakaoMemberService.getUserInfo(accessToken);
-
-        return ResponseEntity.ok(memberService.KakaologinMember(userInfo.getKakaoAccount().getEmail()));
+        TokenDto dto = memberService.KakaologinMember(userInfo.getKakaoAccount().getEmail());
+        if (dto == null) { //db에 정보없으면 accessToken반환
+            return ResponseEntity.ok(TokenTypeDto.builder()
+                    .token(accessToken)
+                    .type(Type.ACCESS)
+                    .build());
+        } else { //db에 이미 가입되어 있으면 BearerToken반환
+            return ResponseEntity.ok(TokenTypeDto.builder()
+                    .token(dto.getToken())
+                    .type(Type.BEARER)
+                    .build());
+        }
     }
 }
-
 //http://kauth.kakao.com/oauth/authorize?response_type=code&client_id=30ade00e0da2a659ae78956bda373c62&redirect_uri=https://localhost:8080/api/auth/kakao-code
 //여기로 와서 로그인하는거임

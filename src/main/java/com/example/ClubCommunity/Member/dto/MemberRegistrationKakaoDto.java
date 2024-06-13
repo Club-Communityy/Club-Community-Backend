@@ -35,8 +35,9 @@ public class MemberRegistrationKakaoDto {
     @Size(min = 8, max = 15, message = "전화번호는 10자리 이상이어야 합니다.")
     private String phoneNumber;
 
+    @NotBlank(message = "이메일을 입력해주세요.")
+    @Email(message = "이메일 형식이 맞지 않습니다.")
+    private String email;
     @NotNull(message = "사용자 유형을 선택해주세요.")
     private Member.UserType userType;
-
-    private String code;
 }
