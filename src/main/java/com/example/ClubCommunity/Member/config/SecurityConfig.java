@@ -35,7 +35,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/kakao-login", "/api/auth/kakao-register").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/**", "/api/auth/kakao-login", "/api/auth/kakao-register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/clubs/applications/pending").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/clubs/approve/**", "/api/clubs/reject/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/club-members/reject/**", "/api/club-members/approve/**").hasAnyRole("ADMIN", "CLUBMANAGER")

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,9 +33,9 @@ public class MemberService {
         return new TokenDto(token);
     }
 
-    public TokenDto registerKakaoMember(MemberRegistrationKakaoDto registrationDto, String email) { //회원가입 시 DB저장 후 토큰 반환
-        validateKakaoRegistration(registrationDto, email);
-        Member member = buildKakaoMember(registrationDto, email);
+    public TokenDto registerKakaoMember(MemberRegistrationKakaoDto registrationDto) { //회원가입 시 DB저장 후 토큰 반환
+        validateKakaoRegistration(registrationDto);
+        Member member = buildKakaoMember(registrationDto);
         memberRepository.save(member);
         String token = jwtTokenProvider.createToken(member.getEmail(), member.getUserType());
         return new TokenDto(token);
@@ -55,8 +56,8 @@ public class MemberService {
         });
     }
 
-    private void validateKakaoRegistration(MemberRegistrationKakaoDto dto, String email) { //회원가입 정보 검증
-        memberRepository.findByEmail(email).ifPresent(m -> {
+    private void validateKakaoRegistration(MemberRegistrationKakaoDto dto) { //회원가입 정보 검증
+        memberRepository.findByEmail(dto.getEmail()).ifPresent(m -> {
             throw new DuplicateEmailException("이미 등록된 이메일입니다.");
         });
         memberRepository.findByStudentId(dto.getStudentId()).ifPresent(m -> {
@@ -82,7 +83,7 @@ public class MemberService {
                 .build();
     }
 
-    private Member buildKakaoMember(MemberRegistrationKakaoDto dto, String email) { //dto로 Member 엔티티 생성
+    private Member buildKakaoMember(MemberRegistrationKakaoDto dto) { //dto로 Member 엔티티 생성
         return Member.builder()
                 .username(dto.getUsername())
                 .birth(dto.getBirth())
@@ -90,7 +91,7 @@ public class MemberService {
                 .department(dto.getDepartment())
                 .studentId(dto.getStudentId())
                 .phoneNumber(dto.getPhoneNumber())
-                .email(email)
+                .email(dto.getEmail())
                 .userType(dto.getUserType())
                 .build();
     }
@@ -105,10 +106,13 @@ public class MemberService {
     }
 
     public TokenDto KakaologinMember(String email) { //로그인 시 이메일 검증 후 토큰 반환
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));//이메일이 존재하지 않을 때
-        String token = jwtTokenProvider.createToken(email, member.getUserType());
-        return new TokenDto(token);
+        Optional<Member> OptionalMember = memberRepository.findByEmail(email);
+        if (OptionalMember.isPresent()) {
+            String token = jwtTokenProvider.createToken(email, OptionalMember.get().getUserType());
+            return new TokenDto(token);
+        } else {
+            return null;
+        }
     }
 
     private void validatePassword(String rawPassword, String encodedPassword) { //비밀번호 검증
