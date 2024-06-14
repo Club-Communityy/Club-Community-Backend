@@ -30,7 +30,9 @@ public class MemberService {
         Member member = buildMember(registrationDto);
         memberRepository.save(member);
         String token = jwtTokenProvider.createToken(member.getLoginId(), member.getUserType());
-        return new TokenDto(token);
+        return TokenDto.builder()
+                .token(token)
+                .build();
     }
 
     public TokenDto registerKakaoMember(MemberRegistrationKakaoDto registrationDto) { //회원가입 시 DB저장 후 토큰 반환
@@ -38,7 +40,9 @@ public class MemberService {
         Member member = buildKakaoMember(registrationDto);
         memberRepository.save(member);
         String token = jwtTokenProvider.createToken(member.getEmail(), member.getUserType());
-        return new TokenDto(token);
+        return TokenDto.builder()
+                .token(token)
+                .build();
     }
 
     private void validateRegistration(MemberRegistrationDto dto) { //회원가입 정보 검증
@@ -91,6 +95,7 @@ public class MemberService {
                 .department(dto.getDepartment())
                 .studentId(dto.getStudentId())
                 .phoneNumber(dto.getPhoneNumber())
+                .loginId(dto.getEmail())
                 .email(dto.getEmail())
                 .userType(dto.getUserType())
                 .build();
@@ -102,14 +107,18 @@ public class MemberService {
                 .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));//아이디가 존재하지 않을때
         validatePassword(loginDto.getPassword(), member.getPasswordHash()); //비밀번호 검증
         String token = jwtTokenProvider.createToken(member.getLoginId(), member.getUserType());
-        return new TokenDto(token);
+        return TokenDto.builder()
+                .token(token)
+                .build();
     }
 
     public TokenDto KakaologinMember(String email) { //로그인 시 이메일 검증 후 토큰 반환
         Optional<Member> OptionalMember = memberRepository.findByEmail(email);
         if (OptionalMember.isPresent()) {
             String token = jwtTokenProvider.createToken(email, OptionalMember.get().getUserType());
-            return new TokenDto(token);
+            return TokenDto.builder()
+                    .token(token)
+                    .build();
         } else {
             return null;
         }
@@ -129,7 +138,6 @@ public class MemberService {
         return memberRepository.findByEmail(username)
                 .map(this::convertToMemberKakaoDto)
                 .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));
-
     }
     public MemberDto getMemberDetailsByUsername(String username) {
         return memberRepository.findByLoginId(username)
@@ -228,5 +236,15 @@ public class MemberService {
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID의 회원을 찾을 수 없습니다: " + memberId));
         member.setUserType(newRole);
         memberRepository.save(member);
+    }
+
+    public Member getMemberByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));
+    }
+
+    public Member getMemberLoginId(String loginId) {
+        return memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));
     }
 }

@@ -44,4 +44,4 @@ iamport:
 
 kakao:
   client_id: 30ade00e0da2a659ae78956bda373c62
-  redirect_uri: http://localhost:8080/api/auth/kakao-code
+  redirect_uri: http://localhost:3000/api/auth/kakao-code
