@@ -35,8 +35,9 @@ public class KakaoLoginController {
     public ResponseEntity<TokenDto> kakaoRegister(@Valid @RequestBody MemberRegistrationKakaoDto registrationDto) throws IOException {
         //회원가입 로직
         TokenDto tokenDto = memberService.registerKakaoMember(registrationDto);
-        Long memberId = memberService.getMemberIdByEmail(registrationDto.getEmail());
-        tokenDto.setMemberId(memberId);
+        Member member = memberService.getMemberByEmail(registrationDto.getEmail());
+        tokenDto.setMemberId(member.getId());
+        tokenDto.setUserType(member.getUserType());
         return ResponseEntity.ok(tokenDto);
     }
 
@@ -53,9 +54,10 @@ public class KakaoLoginController {
                     .type(Type.ACCESS)
                     .build());
         } else { //db에 이미 가입되어 있으면 BearerToken반환
-            Long memberId = memberService.getMemberIdByEmail(userInfo.getKakaoAccount().getEmail());
+            Member member = memberService.getMemberByEmail(userInfo.getKakaoAccount().getEmail());
             return ResponseEntity.ok(TokenTypeDto.builder()
-                    .memberId(memberId)
+                    .memberId(member.getId())
+                    .userType(member.getUserType())
                     .token(dto.getToken())
                     .type(Type.BEARER)
                     .build());

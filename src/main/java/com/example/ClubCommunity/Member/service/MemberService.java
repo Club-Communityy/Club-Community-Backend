@@ -238,9 +238,8 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public Long getMemberIdByEmail(String email) {
-        Member member = memberRepository.findByEmail(email)
+    public Member getMemberByEmail(String email) {
+        return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));
-        return member.getId();
     }
 }
