@@ -11,7 +11,9 @@ import com.example.ClubCommunity.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +26,7 @@ public class ClubMemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public ClubMemberDto applyForMembership(Long clubId, Long memberId) {
+    public ClubMemberDto applyForMembership(Long clubId, Long memberId, MultipartFile file) throws IOException {
         // 동아리 가입 신청 처리
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID로 동아리를 찾을 수 없습니다: " + clubId));
@@ -35,6 +37,9 @@ public class ClubMemberService {
                 .club(club)
                 .member(member)
                 .status(ClubMember.MembershipStatus.APPLIED)
+                .fileName(file.getOriginalFilename())
+                .fileType(file.getContentType())
+                .data(file.getBytes())
                 .build();
 
         clubMemberRepository.save(clubMember);
@@ -53,21 +58,10 @@ public class ClubMemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<ClubMemberDto> getAllClubMembers(Long clubId) {
-        // 동아리의 모든 회원 조회
-        return clubMemberRepository.findAll().stream()
-                .filter(cm -> cm.getClub().getId().equals(clubId))
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public List<ClubMemberDto> getClubMembershipApplications(Long clubId) {
-        // 동아리 가입 신청 목록 조회 (신청 대기 상태)
-        return clubMemberRepository.findAll().stream()
-                .filter(cm -> cm.getClub().getId().equals(clubId) && cm.getStatus() == ClubMember.MembershipStatus.APPLIED)
-                .map(this::toDto)
-                .collect(Collectors.toList());
+    public List<ClubMemberDto> getMemberClubInfo(Long memberId) {
+        // 회원이 가입한 동아리 정보 및 신청 상태 조회
+        List<ClubMember> clubMembers = clubMemberRepository.findAllByMemberId(memberId);
+        return clubMembers.stream().map(this::toDto).collect(Collectors.toList());
     }
 
     @Transactional
@@ -96,6 +90,32 @@ public class ClubMemberService {
             throw new IllegalStateException("거절할 수 없는 상태입니다.");
         }
         return toDto(clubMember);
+    }
+
+    @Transactional(readOnly = true)
+    public ClubMemberDto downloadApplicationForm(Long id) {
+        // 동아리 가입 신청서 다운로드
+        ClubMember clubMember = clubMemberRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 ID로 동아리 회원을 찾을 수 없습니다: " + id));
+        return toDto(clubMember);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClubMemberDto> getAllClubMembers(Long clubId) {
+        // 동아리의 모든 회원 조회
+        return clubMemberRepository.findAll().stream()
+                .filter(cm -> cm.getClub().getId().equals(clubId))
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClubMemberDto> getClubMembershipApplications(Long clubId) {
+        // 동아리 가입 신청 목록 조회 (신청 대기 상태)
+        return clubMemberRepository.findAll().stream()
+                .filter(cm -> cm.getClub().getId().equals(clubId) && cm.getStatus() == ClubMember.MembershipStatus.APPLIED)
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -147,6 +167,9 @@ public class ClubMemberService {
                 .clubId(entity.getClub().getId())
                 .memberId(entity.getMember().getId())
                 .status(entity.getStatus())
+                .fileName(entity.getFileName())
+                .fileType(entity.getFileType())
+                .data(entity.getData())
                 .build();
     }
 }

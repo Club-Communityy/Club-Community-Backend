@@ -4,10 +4,17 @@ import com.example.ClubCommunity.Club.dto.ClubMemberDto;
 import com.example.ClubCommunity.Club.service.ClubMemberService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -18,9 +25,11 @@ public class ClubMemberController {
     private final ClubMemberService clubMemberService;
 
     @PostMapping("/apply")
-    public ResponseEntity<ClubMemberDto> applyForMembership(@RequestParam("clubId") Long clubId, @RequestParam("memberId") Long memberId) {
+    public ResponseEntity<ClubMemberDto> applyForMembership(@RequestParam("clubId") Long clubId,
+                                                            @RequestParam("memberId") Long memberId,
+                                                            @RequestParam("file") MultipartFile file) throws IOException {
         // 동아리 가입 신청 처리
-        ClubMemberDto createdApplication = clubMemberService.applyForMembership(clubId, memberId);
+        ClubMemberDto createdApplication = clubMemberService.applyForMembership(clubId, memberId, file);
         return ResponseEntity.ok(createdApplication);
     }
 
@@ -37,6 +46,33 @@ public class ClubMemberController {
         // 동아리 가입 신청 목록 조회 (신청 대기 상태)
         List<ClubMemberDto> applications = clubMemberService.getClubMembershipApplications(clubId);
         return ResponseEntity.ok(applications);
+    }
+
+    @GetMapping("/member-club-info/{memberId}")
+    public ResponseEntity<List<ClubMemberDto>> getMemberClubInfo(@PathVariable("memberId") Long memberId) {
+        // 회원이 가입한 동아리 정보 조회
+        List<ClubMemberDto> clubInfo = clubMemberService.getMemberClubInfo(memberId);
+        return ResponseEntity.ok(clubInfo);
+    }
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<byte[]> downloadApplicationForm(@PathVariable("id") Long id) throws UnsupportedEncodingException {
+        // 동아리 가입 신청서 다운로드
+        ClubMemberDto clubMember = clubMemberService.downloadApplicationForm(id);
+
+        if (clubMember.getFileName() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String encodedFileName = URLEncoder.encode(clubMember.getFileName(), StandardCharsets.UTF_8.toString()).replaceAll("\\+", "%20");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", encodedFileName);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(clubMember.getData());
     }
 
     @PutMapping("/approve/{id}")

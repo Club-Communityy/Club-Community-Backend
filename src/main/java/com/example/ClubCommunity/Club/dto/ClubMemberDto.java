@@ -15,4 +15,7 @@ public class ClubMemberDto {
     private Long clubId; // 동아리 ID
     private Long memberId; // 회원 ID
     private MembershipStatus status; // 회원 상태 (신청, 승인, 거절, 탈퇴)
+    private String fileName;
+    private String fileType;
+    private byte[] data;
 }
