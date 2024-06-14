@@ -20,7 +20,6 @@ public class ClubDetailsController {
     public ResponseEntity<ClubDetailsDto> createClubDetails(
             @RequestParam("clubId") Long clubId,
             @RequestParam(value = "introduction", required = false) String introduction,
-            @RequestParam(value = "history", required = false) String history,
             @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
             @RequestParam(value = "regularMeetingTime", required = false) String regularMeetingTime,
             @RequestParam(value = "presidentName", required = false) String presidentName,
@@ -30,7 +29,6 @@ public class ClubDetailsController {
         ClubDetailsDto detailsDto = new ClubDetailsDto();
         detailsDto.setClubId(clubId);
         detailsDto.setIntroduction(introduction);
-        detailsDto.setHistory(history);
         detailsDto.setRegularMeetingTime(regularMeetingTime);
         detailsDto.setPresidentName(presidentName);
         detailsDto.setVicePresidentName(vicePresidentName);
@@ -52,7 +50,6 @@ public class ClubDetailsController {
     public ResponseEntity<ClubDetailsDto> updateClubDetails(
             @RequestParam("clubId") Long clubId,
             @RequestParam(value = "introduction", required = false) String introduction,
-            @RequestParam(value = "history", required = false) String history,
             @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
             @RequestParam(value = "regularMeetingTime", required = false) String regularMeetingTime,
             @RequestParam(value = "presidentName", required = false) String presidentName,
@@ -62,7 +59,6 @@ public class ClubDetailsController {
         ClubDetailsDto detailsDto = new ClubDetailsDto();
         detailsDto.setClubId(clubId);
         detailsDto.setIntroduction(introduction);
-        detailsDto.setHistory(history);
         detailsDto.setRegularMeetingTime(regularMeetingTime);
         detailsDto.setPresidentName(presidentName);
         detailsDto.setVicePresidentName(vicePresidentName);
