@@ -1,4 +1,4 @@
-package com.example.ClubCommunity.community.domain;
-
-public class VideoPost {
-}
+//package com.example.ClubCommunity.community.domain;
+//
+//public class VideoPost {
+//}
