@@ -1,5 +1,6 @@
 package com.example.ClubCommunity.Member.controller;
 
+import com.example.ClubCommunity.Member.domain.Member;
 import com.example.ClubCommunity.Member.dto.*;
 import com.example.ClubCommunity.Member.service.MemberService;
 import jakarta.validation.Valid;
@@ -23,12 +24,19 @@ public class MemberController {
     @PostMapping("/register")
     public ResponseEntity<TokenDto> registerMember(@Valid @RequestBody MemberRegistrationDto registrationDto) {
         TokenDto tokenDto = memberService.registerMember(registrationDto);
+        Member member = memberService.getMemberByEmail(registrationDto.getEmail());
+        tokenDto.setMemberId(member.getId());
+        tokenDto.setUserType(member.getUserType());
         return ResponseEntity.ok(tokenDto);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> loginMember(@RequestBody MemberLoginDto loginDto) {
-        return ResponseEntity.ok(memberService.loginMember(loginDto));
+        TokenDto tokenDto = memberService.loginMember(loginDto);
+        Member member = memberService.getMemberLoginId(loginDto.getLoginId());
+        tokenDto.setMemberId(member.getId());
+        tokenDto.setUserType(member.getUserType());
+        return ResponseEntity.ok(tokenDto);
     }
 
     @GetMapping("/me")
