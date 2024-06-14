@@ -2,6 +2,7 @@ package com.example.ClubCommunity.Member.controller;
 
 
 
+import com.example.ClubCommunity.Member.domain.Member;
 import com.example.ClubCommunity.Member.dto.*;
 import com.example.ClubCommunity.Member.service.KakaoMemberService;
 import com.example.ClubCommunity.Member.service.MemberService;
@@ -34,6 +35,8 @@ public class KakaoLoginController {
     public ResponseEntity<TokenDto> kakaoRegister(@Valid @RequestBody MemberRegistrationKakaoDto registrationDto) throws IOException {
         //회원가입 로직
         TokenDto tokenDto = memberService.registerKakaoMember(registrationDto);
+        Long memberId = memberService.getMemberIdByEmail(registrationDto.getEmail());
+        tokenDto.setMemberId(memberId);
         return ResponseEntity.ok(tokenDto);
     }
 
@@ -42,13 +45,17 @@ public class KakaoLoginController {
         String accessToken = kakaoMemberService.getAccessTokenFromKakao(code);
         KakaoUserInfoResponseDto userInfo = kakaoMemberService.getUserInfo(accessToken);
         TokenDto dto = memberService.KakaologinMember(userInfo.getKakaoAccount().getEmail());
+
+
         if (dto == null) { //db에 정보없으면 accessToken반환
             return ResponseEntity.ok(TokenTypeDto.builder()
                     .token(accessToken)
                     .type(Type.ACCESS)
                     .build());
         } else { //db에 이미 가입되어 있으면 BearerToken반환
+            Long memberId = memberService.getMemberIdByEmail(userInfo.getKakaoAccount().getEmail());
             return ResponseEntity.ok(TokenTypeDto.builder()
+                    .memberId(memberId)
                     .token(dto.getToken())
                     .type(Type.BEARER)
                     .build());
