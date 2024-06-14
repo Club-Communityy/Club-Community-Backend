@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "ClubMember")
-public class ClubMember {
+@Table(name = "MembershipApplication")
+public class MembershipApplication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 동아리 회원 ID
+    private Long id; // 신청서 ID
 
     @ManyToOne
     @JoinColumn(name = "club_id", nullable = false)
@@ -26,18 +26,13 @@ public class ClubMember {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member; // 연관된 회원
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MembershipStatus status; // 회원 상태 (신청, 승인, 거절, 탈퇴)
+    private String fileName; // 파일 이름
 
-    private String fileName;
-    private String fileType;
+    @Column(nullable = false)
+    private String fileType; // 파일 타입
 
     @Lob
-    @Column(name = "data", columnDefinition="LONGBLOB")
-    private byte[] data;
-
-    public enum MembershipStatus {
-        APPLIED, APPROVED, REJECTED, WITHDRAWN
-    }
+    @Column(nullable = false)
+    private byte[] data; // 파일 데이터
 }

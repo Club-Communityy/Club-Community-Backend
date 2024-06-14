@@ -3,11 +3,16 @@ package com.example.ClubCommunity.Club.controller;
 import com.example.ClubCommunity.Club.dto.ClubDetailsDto;
 import com.example.ClubCommunity.Club.service.ClubDetailsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/api/club-details")
@@ -24,7 +29,9 @@ public class ClubDetailsController {
             @RequestParam(value = "regularMeetingTime", required = false) String regularMeetingTime,
             @RequestParam(value = "presidentName", required = false) String presidentName,
             @RequestParam(value = "vicePresidentName", required = false) String vicePresidentName,
-            @RequestParam(value = "treasurerName", required = false) String treasurerName) {
+            @RequestParam(value = "treasurerName", required = false) String treasurerName,
+            @RequestParam(value = "applicationForm", required = false) MultipartFile applicationForm,
+            @RequestParam(value = "memberId", required = false) Long memberId) {
 
         ClubDetailsDto detailsDto = new ClubDetailsDto();
         detailsDto.setClubId(clubId);
@@ -42,7 +49,7 @@ public class ClubDetailsController {
             }
         }
 
-        ClubDetailsDto updatedDetails = clubDetailsService.createOrUpdateClubDetails(detailsDto);
+        ClubDetailsDto updatedDetails = clubDetailsService.createOrUpdateClubDetails(detailsDto, applicationForm, memberId);
         return ResponseEntity.ok(updatedDetails);
     }
 
@@ -54,7 +61,9 @@ public class ClubDetailsController {
             @RequestParam(value = "regularMeetingTime", required = false) String regularMeetingTime,
             @RequestParam(value = "presidentName", required = false) String presidentName,
             @RequestParam(value = "vicePresidentName", required = false) String vicePresidentName,
-            @RequestParam(value = "treasurerName", required = false) String treasurerName) {
+            @RequestParam(value = "treasurerName", required = false) String treasurerName,
+            @RequestParam(value = "applicationForm", required = false) MultipartFile applicationForm,
+            @RequestParam(value = "memberId", required = false) Long memberId) {
 
         ClubDetailsDto detailsDto = new ClubDetailsDto();
         detailsDto.setClubId(clubId);
@@ -72,7 +81,7 @@ public class ClubDetailsController {
             }
         }
 
-        ClubDetailsDto updatedDetails = clubDetailsService.createOrUpdateClubDetails(detailsDto);
+        ClubDetailsDto updatedDetails = clubDetailsService.createOrUpdateClubDetails(detailsDto, applicationForm, memberId);
         return ResponseEntity.ok(updatedDetails);
     }
 
@@ -80,5 +89,24 @@ public class ClubDetailsController {
     public ResponseEntity<ClubDetailsDto> getClubDetails(@PathVariable("clubId") Long clubId) {
         ClubDetailsDto details = clubDetailsService.getClubDetails(clubId);
         return ResponseEntity.ok(details);
+    }
+
+    @GetMapping("/exists/{clubId}")
+    public ResponseEntity<Boolean> clubDetailsExists(@PathVariable("clubId") Long clubId) {
+        boolean exists = clubDetailsService.clubDetailsExists(clubId);
+        return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/download-application-form/{clubId}")
+    public ResponseEntity<byte[]> downloadApplicationForm(@PathVariable("clubId") Long clubId) throws UnsupportedEncodingException {
+        byte[] applicationForm = clubDetailsService.downloadApplicationForm(clubId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", URLEncoder.encode("application_form.hwp", StandardCharsets.UTF_8.toString()));
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(applicationForm);
     }
 }
