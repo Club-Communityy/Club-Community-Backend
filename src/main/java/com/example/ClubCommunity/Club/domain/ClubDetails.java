@@ -32,4 +32,8 @@ public class ClubDetails {
     private String presidentName; // 회장
     private String vicePresidentName; // 부회장
     private String treasurerName; // 총무
+
+    @Lob
+    @Column(name = "application_form", columnDefinition="LONGBLOB")
+    private byte[] applicationForm; // 동아리 가입 신청서 데이터
 }
