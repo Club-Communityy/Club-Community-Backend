@@ -27,7 +27,6 @@ public class ClubDetailsService {
 
         details.setClub(club);
         details.setIntroduction(detailsDto.getIntroduction());
-        details.setHistory(detailsDto.getHistory());
         details.setMainImage(detailsDto.getMainImage());
         details.setRegularMeetingTime(detailsDto.getRegularMeetingTime());
         details.setPresidentName(detailsDto.getPresidentName());
@@ -50,12 +49,12 @@ public class ClubDetailsService {
                 .id(entity.getId())
                 .clubId(entity.getClub().getId())
                 .introduction(entity.getIntroduction())
-                .history(entity.getHistory())
                 .mainImage(entity.getMainImage())
                 .regularMeetingTime(entity.getRegularMeetingTime())
                 .presidentName(entity.getPresidentName())
                 .vicePresidentName(entity.getVicePresidentName())
                 .treasurerName(entity.getTreasurerName())
+                .applicationFormUrl("http://localhost:8080/api/club-application-forms/download/1")
                 .build();
     }
 }

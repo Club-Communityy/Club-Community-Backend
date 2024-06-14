@@ -22,7 +22,6 @@ public class ClubDetails {
     private Club club; // 연관된 동아리
 
     private String introduction; // 동아리 소개
-    private String history; // 동아리 역사
 
     @Lob
     @Column(name = "image", columnDefinition="LONGBLOB")
