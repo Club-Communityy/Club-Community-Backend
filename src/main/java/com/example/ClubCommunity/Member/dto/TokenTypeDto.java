@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TokenTypeDto {
+    private Long memberId;
     private String token;
     private Type type;
+
 }
 
