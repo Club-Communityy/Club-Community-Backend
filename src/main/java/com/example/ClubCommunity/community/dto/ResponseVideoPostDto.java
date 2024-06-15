@@ -1,5 +1,7 @@
 package com.example.ClubCommunity.community.dto;
 
+import com.example.ClubCommunity.Club.domain.Club;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Data
@@ -7,12 +9,10 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @Builder
-public class ResponseNotificationPostDto {
+public class ResponseVideoPostDto {
+
     private Long id;
     private String title;
-    private String content;
-    private byte[] image;
+    private String videoUrl;
     private Long clubId;
-    private Boolean isAccount;
-
 }
