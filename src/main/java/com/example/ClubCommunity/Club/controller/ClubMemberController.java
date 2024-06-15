@@ -27,9 +27,12 @@ public class ClubMemberController {
     @PostMapping("/apply")
     public ResponseEntity<ClubMemberDto> applyForMembership(@RequestParam("clubId") Long clubId,
                                                             @RequestParam("memberId") Long memberId,
-                                                            @RequestParam("file") MultipartFile file) throws IOException {
+                                                            @RequestParam("file") MultipartFile file,
+                                                            @RequestParam("memberName") String memberName,
+                                                            @RequestParam("department") String department,
+                                                            @RequestParam("studentId") String studentId) throws IOException {
         // 동아리 가입 신청 처리
-        ClubMemberDto createdApplication = clubMemberService.applyForMembership(clubId, memberId, file);
+        ClubMemberDto createdApplication = clubMemberService.applyForMembership(clubId, memberId, file, memberName, department, studentId);
         return ResponseEntity.ok(createdApplication);
     }
 
