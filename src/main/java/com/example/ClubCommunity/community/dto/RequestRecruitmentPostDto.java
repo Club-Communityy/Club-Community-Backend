@@ -20,7 +20,6 @@ public class RequestRecruitmentPostDto {
     private String title;
     private String content;
     private Long clubId;
-
     public RecruitmentPost toEntity(Club club) {
         return RecruitmentPost.builder()
                 .title(title)

@@ -13,6 +13,7 @@ public class ResponseNotificationPostDto {
     private String content;
     private byte[] image;
     private Long clubId;
+    private String clubName;
     private Boolean isAccount;
 
 }
