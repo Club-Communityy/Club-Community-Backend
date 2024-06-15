@@ -47,6 +47,7 @@ public class PostService {
                 .title(postDto.getTitle())
                 .image(imageBytes)
                 .clubId(postDto.getClubId())
+                .clubName(club.getName())
                 .build();
     }
 
@@ -57,6 +58,7 @@ public class PostService {
                 .title(p.getTitle())
                 .image(p.getImage())
                 .clubId(p.getClub().getId())
+                .clubName(p.getClub().getName())
                 .build();
 
     }
@@ -68,6 +70,7 @@ public class PostService {
                         .title(p.getTitle())
                         .image(p.getImage())
                         .clubId(p.getClub().getId())
+                        .clubName(p.getClub().getName())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -96,6 +99,7 @@ public class PostService {
                 .content(postDto.getContent())
                 .image(imageBytes)
                 .clubId(postDto.getClubId())
+                .clubName(club.getName())
                 .isAccount(postDto.getIsAccount())
                 .build();
     }
@@ -108,6 +112,7 @@ public class PostService {
                 .content(r.getContent())
                 .image(r.getImage())
                 .clubId(r.getClub().getId())
+                .clubName(r.getClub().getName())
                 .isAccount(r.getIsAccount())
                 .build();
     }
@@ -119,6 +124,7 @@ public class PostService {
                         .content(r.getContent())
                         .image(r.getImage())
                         .clubId(r.getClub().getId())
+                        .clubName(r.getClub().getName())
                         .isAccount(r.getIsAccount())
                         .build())
                 .collect(Collectors.toList());
@@ -136,6 +142,7 @@ public class PostService {
                 .title(postDto.getTitle())
                 .content(postDto.getContent())
                 .clubId(postDto.getClubId())
+                .clubName(club.getName())
                 .build();
     }
 
@@ -146,6 +153,7 @@ public class PostService {
                 .title(n.getTitle())
                 .content(n.getContent())
                 .clubId(n.getClub().getId())
+                .clubName(n.getClub().getName())
                 .build();
     }
 
@@ -156,6 +164,7 @@ public class PostService {
                         .title(n.getTitle())
                         .content(n.getContent())
                         .clubId(n.getClub().getId())
+                        .clubName(n.getClub().getName())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -173,6 +182,7 @@ public class PostService {
                 .title(postDto.getTitle())
                 .videoUrl(postDto.getVideoUrl())
                 .clubId(postDto.getClubId())
+                .clubName(club.getName())
                 .build();
     }
 
@@ -183,6 +193,7 @@ public class PostService {
                         .title(v.getTitle())
                         .videoUrl(v.getVideoUrl())
                         .clubId(v.getClub().getId())
+                        .clubName(v.getClub().getName())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -194,6 +205,7 @@ public class PostService {
                 .title(v.getTitle())
                 .videoUrl(v.getVideoUrl())
                 .clubId(v.getClub().getId())
+                .clubName(v.getClub().getName())
                 .build();
     }
 
@@ -207,6 +219,7 @@ public class PostService {
                 .content(notificationPost.getContent())
                 .image(notificationPost.getImage())
                 .clubId(notificationPost.getClub().getId())
+                .clubName(notificationPost.getClub().getName())
                 .isAccount(notificationPost.getIsAccount())
                 .build();
 

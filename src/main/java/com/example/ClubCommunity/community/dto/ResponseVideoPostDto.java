@@ -15,4 +15,5 @@ public class ResponseVideoPostDto {
     private String title;
     private String videoUrl;
     private Long clubId;
+    private String clubName;
 }

@@ -13,4 +13,5 @@ public class ResponsePhotoPostDto {
     private String title;
     private byte[] image;
     private Long clubId;
+    private String clubName;
 }
