@@ -37,6 +37,10 @@ public class ClubMember {
     @Column(name = "data", columnDefinition="LONGBLOB")
     private byte[] data;
 
+    private String memberName; // 회원 이름
+    private String department; // 학과
+    private String studentId; // 학번
+
     public enum MembershipStatus {
         APPLIED, APPROVED, REJECTED, WITHDRAWN
     }

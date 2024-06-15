@@ -18,4 +18,7 @@ public class ClubMemberDto {
     private String fileName;
     private String fileType;
     private byte[] data;
+    private String memberName; // 회원 이름
+    private String department; // 학과
+    private String studentId; // 학번
 }
