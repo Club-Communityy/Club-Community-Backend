@@ -110,5 +110,11 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자만 접근 가능합니다.");
         }
     }
+
+    @GetMapping("/api/auth/check-join/{clubId}")
+    public Boolean checkJoinClub(@PathVariable("clubId") Long clubId, Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return memberService.checkJoinClub(clubId, userDetails.getUsername());
+    }
     
 }
