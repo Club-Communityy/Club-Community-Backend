@@ -26,12 +26,20 @@ public class ClubMemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public ClubMemberDto applyForMembership(Long clubId, Long memberId, MultipartFile file) throws IOException {
+    public ClubMemberDto applyForMembership(Long clubId, Long memberId, MultipartFile file, String memberName, String department, String studentId) throws IOException {
         // 동아리 가입 신청 처리
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID로 동아리를 찾을 수 없습니다: " + clubId));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 ID로 회원을 찾을 수 없습니다: " + memberId));
+
+        // 이미 신청 중인지 확인
+        boolean alreadyApplied = clubMemberRepository.findAllByMemberId(memberId).stream()
+                .anyMatch(cm -> cm.getClub().getId().equals(clubId) && cm.getStatus() == ClubMember.MembershipStatus.APPLIED);
+
+        if (alreadyApplied) {
+            throw new IllegalStateException("이미 해당 동아리에 가입 신청 중입니다.");
+        }
 
         ClubMember clubMember = ClubMember.builder()
                 .club(club)
@@ -40,6 +48,9 @@ public class ClubMemberService {
                 .fileName(file.getOriginalFilename())
                 .fileType(file.getContentType())
                 .data(file.getBytes())
+                .memberName(memberName)
+                .department(department)
+                .studentId(studentId)
                 .build();
 
         clubMemberRepository.save(clubMember);
@@ -62,6 +73,13 @@ public class ClubMemberService {
         // 회원이 가입한 동아리 정보 및 신청 상태 조회
         List<ClubMember> clubMembers = clubMemberRepository.findAllByMemberId(memberId);
         return clubMembers.stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClubMemberDto> getPendingApplications(Long clubId) {
+        // 동아리의 승인 대기 중인 회원 조회
+        List<ClubMember> pendingApplications = clubMemberRepository.findAllByClubIdAndStatus(clubId, ClubMember.MembershipStatus.APPLIED);
+        return pendingApplications.stream().map(this::toDto).collect(Collectors.toList());
     }
 
     @Transactional
@@ -170,6 +188,9 @@ public class ClubMemberService {
                 .fileName(entity.getFileName())
                 .fileType(entity.getFileType())
                 .data(entity.getData())
+                .memberName(entity.getMemberName())
+                .department(entity.getDepartment())
+                .studentId(entity.getStudentId())
                 .build();
     }
 }
