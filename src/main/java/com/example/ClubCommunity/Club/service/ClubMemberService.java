@@ -122,7 +122,7 @@ public class ClubMemberService {
     public List<ClubMemberDto> getAllClubMembers(Long clubId) {
         // 동아리의 모든 회원 조회
         return clubMemberRepository.findAll().stream()
-                .filter(cm -> cm.getClub().getId().equals(clubId))
+                .filter(cm -> cm.getClub().getId().equals(clubId) && cm.getStatus() == ClubMember.MembershipStatus.APPROVED) //형준 수정
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
