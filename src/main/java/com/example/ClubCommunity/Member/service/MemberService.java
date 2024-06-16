@@ -254,7 +254,8 @@ public class MemberService {
 
     //유저의 동아리 가입 여부 반환
     public Boolean checkJoinClub(Long clubId, String username) {
-        Member member = memberRepository.findByUsername(username).get();
+        Member member = memberRepository.findByLoginId(username)
+                .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));
         ClubMember clubMember = clubMemberRepository.findByMemberIdAndClubId(member.getId(), clubId)
                 .orElseThrow(() -> new UserNotFoundException("가입 신청 정보를 찾을 수 없습니다."));
 
