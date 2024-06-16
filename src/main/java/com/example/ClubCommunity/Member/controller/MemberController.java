@@ -111,7 +111,7 @@ public class MemberController {
         }
     }
 
-    @GetMapping("/api/auth/check-join/{clubId}")
+    @GetMapping("/check-join/{clubId}")
     public Boolean checkJoinClub(@PathVariable("clubId") Long clubId, Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return memberService.checkJoinClub(clubId, userDetails.getUsername());
