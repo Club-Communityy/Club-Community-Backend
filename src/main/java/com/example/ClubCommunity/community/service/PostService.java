@@ -252,7 +252,7 @@ public class PostService {
                 .build();
     }
 
-    public ResponseNotificationPostDto updateIsAccount(Long id, ToggleDto dto) {
+    public ResponseNotificationPostDto updateIsAccount(Long id, ToggleDto dto) { //공지 게시글 공개설정 변경
         NotificationPost notificationPost = notificationPostRepository.findById(id).get();
         notificationPost.updateIsAccount(dto.getIsAccount());
 
