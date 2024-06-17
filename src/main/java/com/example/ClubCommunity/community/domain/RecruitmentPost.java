@@ -17,7 +17,11 @@ public class RecruitmentPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String content;
+    @Lob
+    @Column(name = "image", columnDefinition="LONGBLOB",nullable = true)
+    private byte[] image;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;

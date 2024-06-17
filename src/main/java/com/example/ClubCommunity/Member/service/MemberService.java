@@ -1,5 +1,7 @@
 package com.example.ClubCommunity.Member.service;
 
+import com.example.ClubCommunity.Club.domain.ClubMember;
+import com.example.ClubCommunity.Club.repository.ClubMemberRepository;
 import com.example.ClubCommunity.Member.domain.Member;
 import com.example.ClubCommunity.Member.dto.*;
 import com.example.ClubCommunity.Member.repository.MemberRepository;
@@ -20,6 +22,8 @@ public class MemberService {
 
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private ClubMemberRepository clubMemberRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -246,5 +250,19 @@ public class MemberService {
     public Member getMemberLoginId(String loginId) {
         return memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));
+    }
+
+    //유저의 동아리 가입 여부 반환
+    public Boolean checkJoinClub(Long clubId, String username) {
+        Member member = memberRepository.findByLoginId(username)
+                .orElseThrow(() -> new UserNotFoundException("회원 정보를 찾을 수 없습니다."));
+        ClubMember clubMember = clubMemberRepository.findByMemberIdAndClubId(member.getId(), clubId)
+                .orElseThrow(() -> new UserNotFoundException("가입 신청 정보를 찾을 수 없습니다."));
+
+        if(clubMember.getStatus() == ClubMember.MembershipStatus.APPROVED)
+            return true;
+        else
+            return false;
+
     }
 }

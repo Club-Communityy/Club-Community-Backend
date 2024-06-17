@@ -5,6 +5,7 @@ import com.example.ClubCommunity.community.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -62,11 +63,11 @@ public class PostController {
         return ResponseEntity.ok(responseNotificationPostDto);
     }
     @GetMapping("/notification/{id}") //공지 게시글 정보
-    public ResponseEntity<ResponseNotificationPostDto> notificationInfo(@PathVariable("id") Long id) {
-        ResponseNotificationPostDto responseNotificationPostDto = postService.notificationInfo(id);
+    public ResponseEntity<ResponseNotificationPostDto> notificationInfo(@PathVariable("id") Long id, Authentication authentication) {
+        ResponseNotificationPostDto responseNotificationPostDto = postService.notificationInfo(id, authentication);
         return ResponseEntity.ok(responseNotificationPostDto);
     }
-    @PostMapping("/notification/{id}") //공지 게시글 정보
+    @PostMapping("/notification/{id}") //공지 게시글 공개여부 토글버튼
     public ResponseEntity<ResponseNotificationPostDto> notificationInfo(@PathVariable("id") Long id, @RequestBody ToggleDto dto) {
         ResponseNotificationPostDto responseNotificationPostDto = postService.updateIsAccount(id, dto);
         return ResponseEntity.ok(responseNotificationPostDto);
