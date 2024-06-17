@@ -35,7 +35,7 @@ public class PostController {
 
 
     @PostMapping("/recruitment/regist") //부원 모집 게시글 등록
-    public ResponseEntity<ResponseRecruitmentPostDto> recruitmentRegist(@RequestBody RequestRecruitmentPostDto postDto) {
+    public ResponseEntity<ResponseRecruitmentPostDto> recruitmentRegist(@ModelAttribute RequestRecruitmentPostDto postDto) {
         ResponseRecruitmentPostDto responseNotificationPostDto = postService.recruitmentRegist(postDto);
         return ResponseEntity.ok(responseNotificationPostDto);
     }
