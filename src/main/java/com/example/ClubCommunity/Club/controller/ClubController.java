@@ -39,6 +39,13 @@ public class ClubController {
         return ResponseEntity.ok(myApplications);
     }
 
+    @GetMapping("/my-applications/approved")
+    public ResponseEntity<List<ClubDto>> getMyApplicationsApproved(Authentication authentication) {
+        // 자신이 신청한 동아리 중 승인된 목록 조회
+        List<ClubDto> myApplications = clubService.getMyApplicationsApproved(authentication);
+        return ResponseEntity.ok(myApplications);
+    }
+
     @GetMapping("/applications/pending")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ClubDto>> getPendingClubApplications() {

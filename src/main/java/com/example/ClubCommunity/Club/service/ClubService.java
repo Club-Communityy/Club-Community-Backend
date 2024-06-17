@@ -50,6 +50,13 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
+    public List<ClubDto> getMyApplicationsApproved(Authentication authentication) {
+        // 자신이 신청한 동아리 중 승인된 목록 조회
+        Member member = getAuthenticatedMember(authentication);
+        return clubRepository.findByApplicantAndStatus(member, Club.ClubStatus.APPROVED).stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<ClubDto> getPendingClubApplications() {
         // PENDING 상태의 동아리 신청 목록 조회
         return clubRepository.findByStatus(Club.ClubStatus.PENDING).stream().map(this::toDto).collect(Collectors.toList());
