@@ -19,11 +19,21 @@ public class RequestRecruitmentPostDto {
 
     private String title;
     private String content;
+    private MultipartFile image;
     private Long clubId;
     public RecruitmentPost toEntity(Club club) {
+
+        byte[] imageBytes = null;
+        try {
+            imageBytes = image != null ? image.getBytes() : null;
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 변환 중 오류가 발생했습니다.", e);
+        }
+
         return RecruitmentPost.builder()
                 .title(title)
                 .content(content)
+                .image(imageBytes)
                 .club(club)
                 .build();
     }

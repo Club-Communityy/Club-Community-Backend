@@ -14,6 +14,7 @@ public class ResponseRecruitmentPostDto {
     private Long id;
     private String title;
     private String content;
+    private byte[] image;
     private Long clubId;
     private String clubName;
 }
